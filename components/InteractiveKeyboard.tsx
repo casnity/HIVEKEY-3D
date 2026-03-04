@@ -195,8 +195,9 @@ export function InteractiveKeyboard() {
   }, []);
 
   return (
-    <div className="absolute inset-0 z-20">
-      <div className="absolute inset-0 cursor-grab active:cursor-grabbing">
+    <section className="relative w-full h-screen flex flex-col bg-[#050505]">
+      {/* 3D Model Area */}
+      <div className="flex-1 relative cursor-grab active:cursor-grabbing">
         <Canvas 
           shadows 
           dpr={[1, 1.5]}
@@ -227,25 +228,26 @@ export function InteractiveKeyboard() {
         </Canvas>
       </div>
       
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 pointer-events-auto">
-        <div className="text-white/40 text-sm tracking-widest uppercase flex items-center gap-2 pointer-events-none">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-          </svg>
-          Type on your keyboard to test
+      {/* New Control Section Below 3D Model */}
+      <div className="h-auto py-8 px-6 bg-[#0A0A0C] border-t border-white/10 flex flex-col items-center justify-center gap-6 relative z-30">
+        <div className="text-center space-y-2 max-w-2xl mx-auto">
+          <h3 className="text-2xl font-bold text-white tracking-tight">Interactive Inspection</h3>
+          <p className="text-white/60 text-base leading-relaxed">
+            Type on your physical keyboard to test the procedural acoustics and see the keys actuate in real-time. Drag the model above to rotate it, and use the slider below to zoom in on the precision-machined details.
+          </p>
         </div>
         
-        <div className="flex items-center gap-4 bg-[#0A0A0C]/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/10">
+        <div className="flex items-center gap-6 bg-black/50 backdrop-blur-md px-8 py-4 rounded-full border border-white/10 shadow-xl">
           <button 
             onClick={() => setZoom(Math.max(0, zoom - 0.5))}
-            className="text-white/60 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10"
+            className="text-white/60 hover:text-white transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 bg-white/5"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>
           </button>
           
-          <div className="w-32 h-1 bg-white/10 rounded-full overflow-hidden relative">
+          <div className="w-48 h-1.5 bg-white/10 rounded-full overflow-hidden relative">
             <div 
-              className="absolute top-0 left-0 h-full bg-[#c85a17] transition-all duration-300"
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#c85a17] to-[#ff6a00] transition-all duration-300"
               style={{ width: `${(zoom / 2) * 100}%` }}
             />
             <input 
@@ -261,12 +263,12 @@ export function InteractiveKeyboard() {
           
           <button 
             onClick={() => setZoom(Math.min(2, zoom + 0.5))}
-            className="text-white/60 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10"
+            className="text-white/60 hover:text-white transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 bg-white/5"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

@@ -7,36 +7,18 @@ interface ScrollSectionsProps {
 }
 
 export function ScrollSections({ progress }: ScrollSectionsProps) {
-  const section1Opacity = useTransform(progress, [0, 0.05, 0.1, 0.15], [1, 1, 1, 0]);
-  const section2Opacity = useTransform(progress, [0.15, 0.2, 0.35, 0.4], [0, 1, 1, 0]);
-  const section3Opacity = useTransform(progress, [0.4, 0.45, 0.6, 0.65], [0, 1, 1, 0]);
-  const section4Opacity = useTransform(progress, [0.65, 0.7, 0.8, 0.85], [0, 1, 1, 0]);
-  const section5Opacity = useTransform(progress, [0.85, 0.9, 1, 1], [0, 1, 1, 1]);
+  const section2Opacity = useTransform(progress, [0, 0.1, 0.25, 0.3], [0, 1, 1, 0]);
+  const section3Opacity = useTransform(progress, [0.3, 0.4, 0.55, 0.6], [0, 1, 1, 0]);
+  const section4Opacity = useTransform(progress, [0.6, 0.7, 0.85, 0.9], [0, 1, 1, 0]);
+  const section5Opacity = useTransform(progress, [0.9, 0.95, 1, 1], [0, 1, 1, 1]);
 
-  const section1Y = useTransform(progress, [0, 0.05, 0.1, 0.15], [0, 0, 0, -20]);
-  const section2Y = useTransform(progress, [0.15, 0.2, 0.35, 0.4], [20, 0, 0, -20]);
-  const section3Y = useTransform(progress, [0.4, 0.45, 0.6, 0.65], [20, 0, 0, -20]);
-  const section4Y = useTransform(progress, [0.65, 0.7, 0.8, 0.85], [20, 0, 0, -20]);
-  const section5Y = useTransform(progress, [0.85, 0.9, 1, 1], [20, 0, 0, 0]);
+  const section2Y = useTransform(progress, [0, 0.1, 0.25, 0.3], [20, 0, 0, -20]);
+  const section3Y = useTransform(progress, [0.3, 0.4, 0.55, 0.6], [20, 0, 0, -20]);
+  const section4Y = useTransform(progress, [0.6, 0.7, 0.85, 0.9], [20, 0, 0, -20]);
+  const section5Y = useTransform(progress, [0.9, 0.95, 1, 1], [20, 0, 0, 0]);
 
   return (
     <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-      {/* Section 1: Hero */}
-      <motion.div
-        style={{ opacity: section1Opacity, y: section1Y }}
-        className="absolute text-center max-w-2xl px-6"
-      >
-        <h1 className="text-6xl md:text-8xl font-bold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white via-[#FFF2EB] to-[#FFB08A]">
-          Flow Hive 65
-        </h1>
-        <p className="text-2xl md:text-3xl font-medium text-white/90 mb-6">
-          Precision, perfected.
-        </p>
-        <p className="text-lg text-white/60">
-          Flagship mechanical performance, refined to its purest form.
-        </p>
-      </motion.div>
-
       {/* Section 2: Engineering Reveal */}
       <motion.div
         style={{ opacity: section2Opacity, y: section2Y }}

@@ -2,18 +2,21 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useCart } from "./CartContext";
 
 export function ExperienceSection() {
   const [toast, setToast] = useState<string | null>(null);
+  const { addToCart } = useCart();
 
   const handleAddToCart = () => {
+    addToCart({ id: 'hive-65-matte-black', name: 'Flow Hive 65 - Matte Black', price: 79 });
     setToast("Hive 65 added to your cart.");
     setTimeout(() => setToast(null), 3000);
   };
 
   const handleBuyNow = () => {
-    setToast("Proceeding to secure checkout...");
-    setTimeout(() => setToast(null), 3000);
+    addToCart({ id: 'hive-65-matte-black', name: 'Flow Hive 65 - Matte Black', price: 79 });
+    // The cart drawer will open automatically via addToCart
   };
 
   const containerVariants = {

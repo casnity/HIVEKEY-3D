@@ -19,6 +19,9 @@ export default function Page() {
     <main className="bg-black text-white min-h-screen selection:bg-[#FF6A00]/30 font-sans">
       <Navbar />
       
+      {/* Interactive 3D Keyboard Model Section */}
+      <InteractiveKeyboard />
+
       <div ref={containerRef} className="relative h-[400vh]" id="scroll-container">
         {/* Anchor Points for Navigation */}
         <div id="overview" className="absolute top-0 w-full h-10 pointer-events-none" />
@@ -28,9 +31,6 @@ export default function Page() {
 
         <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
           <BackgroundGlow progress={scrollYProgress} />
-          
-          {/* Interactive 3D Keyboard Model */}
-          <InteractiveKeyboard />
           
           <ScrollSections progress={scrollYProgress} />
         </div>
