@@ -1,69 +1,102 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, ContactShadows, Float, PresentationControls } from "@react-three/drei";
+import { Environment, ContactShadows, Float, PresentationControls, Text } from "@react-three/drei";
 import * as THREE from "three";
+
+// Colors matching the provided image
+const COLOR_BASE = "#c85a17"; // Copper/Orange
+const COLOR_MOD = "#4a1c05";  // Dark Brown
+const COLOR_ALPHA = "#e5e5e5"; // White
+const COLOR_TEXT_MOD = "#e5e5e5";
+const COLOR_TEXT_ALPHA = "#4a1c05";
+
+// Materials
+const materialBase = new THREE.MeshStandardMaterial({ color: COLOR_BASE, roughness: 0.2, metalness: 0.8 });
+const materialMod = new THREE.MeshStandardMaterial({ color: COLOR_MOD, roughness: 0.8, metalness: 0.1 });
+const materialAlpha = new THREE.MeshStandardMaterial({ color: COLOR_ALPHA, roughness: 0.4, metalness: 0.1 });
+const materialKnob = new THREE.MeshStandardMaterial({ color: COLOR_BASE, roughness: 0.2, metalness: 0.9 });
+
+// Layout Definition (75% Keyboard)
+type KeyDef = { l: string; w: number; m?: boolean; k?: boolean };
+const layout: KeyDef[][] = [
+  [{l:'Esc', w:1, m:true}, {l:'F1', w:1, m:true}, {l:'F2', w:1, m:true}, {l:'F3', w:1, m:true}, {l:'F4', w:1, m:true}, {l:'F5', w:1, m:true}, {l:'F6', w:1, m:true}, {l:'F7', w:1, m:true}, {l:'F8', w:1, m:true}, {l:'F9', w:1, m:true}, {l:'F10', w:1, m:true}, {l:'F11', w:1, m:true}, {l:'F12', w:1, m:true}, {l:'Del', w:1, m:true}, {l:'', w:1, m:true, k:true}],
+  [{l:'~', w:1, m:true}, {l:'1', w:1}, {l:'2', w:1}, {l:'3', w:1}, {l:'4', w:1}, {l:'5', w:1}, {l:'6', w:1}, {l:'7', w:1}, {l:'8', w:1}, {l:'9', w:1}, {l:'0', w:1}, {l:'-', w:1}, {l:'+', w:1}, {l:'Backspace', w:2, m:true}],
+  [{l:'Tab', w:1.5, m:true}, {l:'Q', w:1}, {l:'W', w:1}, {l:'E', w:1}, {l:'R', w:1}, {l:'T', w:1}, {l:'Y', w:1}, {l:'U', w:1}, {l:'I', w:1}, {l:'O', w:1}, {l:'P', w:1}, {l:'[', w:1}, {l:']', w:1}, {l:'\\', w:1.5, m:true}],
+  [{l:'Caps', w:1.75, m:true}, {l:'A', w:1}, {l:'S', w:1}, {l:'D', w:1}, {l:'F', w:1}, {l:'G', w:1}, {l:'H', w:1}, {l:'J', w:1}, {l:'K', w:1}, {l:'L', w:1}, {l:';', w:1}, {l:'"', w:1}, {l:'Enter', w:2.25, m:true}],
+  [{l:'Shift', w:2.25, m:true}, {l:'Z', w:1}, {l:'X', w:1}, {l:'C', w:1}, {l:'V', w:1}, {l:'B', w:1}, {l:'N', w:1}, {l:'M', w:1}, {l:'<', w:1}, {l:'>', w:1}, {l:'?', w:1}, {l:'Shift', w:1.75, m:true}, {l:'↑', w:1, m:true}],
+  [{l:'Ctrl', w:1.25, m:true}, {l:'Win', w:1.25, m:true}, {l:'Alt', w:1.25, m:true}, {l:'', w:6.25, m:false}, {l:'Alt', w:1, m:true}, {l:'Fn', w:1, m:true}, {l:'←', w:1, m:true}, {l:'↓', w:1, m:true}, {l:'→', w:1, m:true}]
+];
 
 function KeyboardModel({ zoom }: { zoom: number }) {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame(() => {
     if (groupRef.current) {
-      // Smoothly interpolate scale based on zoom state
       const targetScale = 1 + zoom * 0.5;
       groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
     }
   });
 
-  // Simple stylized keyboard representation
+  const U = 0.42;
+  const gap = 0.04;
+  const startX = -(15 * U) / 2 + U / 2;
+  const startZ = -(6 * U) / 2 + U / 2;
+
+  const keys = useMemo(() => {
+    const result: React.ReactNode[] = [];
+    let currentZ = startZ;
+
+    layout.forEach((row, rowIndex) => {
+      let currentX = startX;
+      if (rowIndex === 1) currentZ += gap * 2; // Gap between F-row and numbers
+
+      row.forEach((key, colIndex) => {
+        const keyWidth = key.w * U - gap;
+        const keyDepth = U - gap;
+        const xPos = currentX + (key.w * U) / 2 - U / 2;
+
+        if (key.k) {
+          result.push(
+            <mesh key={`${rowIndex}-${colIndex}`} material={materialKnob} position={[xPos, 0.25, currentZ]} castShadow>
+              <cylinderGeometry args={[0.18, 0.18, 0.3, 32]} />
+            </mesh>
+          );
+        } else {
+          result.push(
+            <group key={`${rowIndex}-${colIndex}`} position={[xPos, 0.1, currentZ]}>
+              <mesh material={key.m ? materialMod : materialAlpha} castShadow receiveShadow>
+                <boxGeometry args={[keyWidth, 0.2, keyDepth]} />
+              </mesh>
+              {key.l && (
+                <Text
+                  position={[-(keyWidth/2) + 0.04, 0.101, -(keyDepth/2) + 0.04]}
+                  rotation={[-Math.PI / 2, 0, 0]}
+                  fontSize={0.06}
+                  color={key.m ? COLOR_TEXT_MOD : COLOR_TEXT_ALPHA}
+                  anchorX="left"
+                  anchorY="top"
+                >
+                  {key.l}
+                </Text>
+              )}
+            </group>
+          );
+        }
+        currentX += key.w * U;
+      });
+      currentZ += U;
+    });
+    return result;
+  }, [startX, startZ]);
+
   return (
-    <group ref={groupRef} dispose={null}>
-      {/* Base Case */}
-      <mesh position={[0, -0.2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[6, 0.4, 2.5]} />
-        <meshStandardMaterial color="#1a1a1a" roughness={0.7} metalness={0.5} />
+    <group ref={groupRef} dispose={null} rotation={[0.15, 0, 0]}>
+      <mesh material={materialBase} position={[0, -0.15, 0]} castShadow receiveShadow>
+        <boxGeometry args={[15 * U + 0.2, 0.4, 6 * U + 0.3]} />
       </mesh>
-
-      {/* Keys */}
-      <group position={[-2.8, 0.1, -1.1]}>
-        {Array.from({ length: 5 }).map((_, row) => (
-          <group key={row} position={[0, 0, row * 0.55]}>
-            {Array.from({ length: 14 }).map((_, col) => {
-              // Skip some keys to make it look like a 65% layout
-              if (row === 4 && (col === 3 || col === 4 || col === 5 || col === 6 || col === 7)) {
-                if (col === 5) {
-                  // Spacebar
-                  return (
-                    <mesh key={col} position={[col * 0.4 + 0.8, 0, 0]} castShadow receiveShadow>
-                      <boxGeometry args={[2.5, 0.2, 0.45]} />
-                      <meshStandardMaterial color="#0A0A0C" roughness={0.4} metalness={0.8} />
-                    </mesh>
-                  );
-                }
-                return null;
-              }
-              
-              // Accent keys
-              const isAccent = (row === 0 && col === 0) || (row === 2 && col === 13);
-              const color = isAccent ? "#FF6A00" : "#0A0A0C";
-
-              return (
-                <mesh key={col} position={[col * 0.42, 0, 0]} castShadow receiveShadow>
-                  <boxGeometry args={[0.38, 0.2, 0.45]} />
-                  <meshStandardMaterial color={color} roughness={0.4} metalness={0.8} />
-                </mesh>
-              );
-            })}
-          </group>
-        ))}
-      </group>
-
-      {/* Knob (65% feature) */}
-      <mesh position={[2.6, 0.2, -0.9]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.2, 0.2, 0.3, 32]} />
-        <meshStandardMaterial color="#FF6A00" roughness={0.2} metalness={0.9} />
-      </mesh>
+      {keys}
     </group>
   );
 }
@@ -74,30 +107,36 @@ export function InteractiveKeyboard() {
   return (
     <div className="absolute inset-0 z-20">
       <div className="absolute inset-0 cursor-grab active:cursor-grabbing">
-        <Canvas shadows camera={{ position: [0, 4, 6], fov: 45 }}>
+        <Canvas 
+          shadows 
+          dpr={[1, 1.5]}
+          camera={{ position: [0, 5, 7], fov: 45 }}
+          style={{ touchAction: 'pan-y' }}
+          gl={{ antialias: true, powerPreference: "high-performance" }}
+        >
           <color attach="background" args={["transparent"]} />
-          <ambientLight intensity={0.5} />
-          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
+          <ambientLight intensity={0.6} />
+          <spotLight position={[10, 10, 10]} angle={0.2} penumbra={1} intensity={1.5} castShadow shadow-mapSize={[512, 512]} />
           <pointLight position={[-10, -10, -10]} intensity={0.5} />
+          <spotLight position={[0, 5, -5]} angle={0.5} penumbra={1} intensity={2} color="#ff4400" />
           
           <PresentationControls
             global
             snap={true}
-            rotation={[0, 0.3, 0]}
+            rotation={[0, -0.5, 0]}
             polar={[-Math.PI / 3, Math.PI / 3]}
             azimuth={[-Math.PI / 1.4, Math.PI / 2]}
           >
-            <Float rotationIntensity={0.4} floatIntensity={2} speed={1.5}>
+            <Float rotationIntensity={0.2} floatIntensity={1.5} speed={1.5}>
               <KeyboardModel zoom={zoom} />
             </Float>
           </PresentationControls>
 
-          <ContactShadows position={[0, -1.5, 0]} opacity={0.4} scale={20} blur={2} far={4.5} />
+          <ContactShadows position={[0, -1.8, 0]} opacity={0.6} scale={25} blur={2} far={4.5} resolution={256} color="#000000" />
           <Environment preset="city" />
         </Canvas>
       </div>
       
-      {/* Interaction Controls */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 pointer-events-auto">
         <div className="text-white/40 text-sm tracking-widest uppercase flex items-center gap-2 pointer-events-none">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -116,7 +155,7 @@ export function InteractiveKeyboard() {
           
           <div className="w-32 h-1 bg-white/10 rounded-full overflow-hidden relative">
             <div 
-              className="absolute top-0 left-0 h-full bg-[#FF6A00] transition-all duration-300"
+              className="absolute top-0 left-0 h-full bg-[#c85a17] transition-all duration-300"
               style={{ width: `${(zoom / 2) * 100}%` }}
             />
             <input 
