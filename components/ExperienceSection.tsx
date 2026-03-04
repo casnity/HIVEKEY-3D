@@ -25,12 +25,12 @@ export function ExperienceSection() {
   };
 
   const cardContainerVariants = {
-    hidden: { opacity: 0, x: 40 },
+    hidden: { opacity: 0, x: 100 },
     visible: {
       opacity: 1, 
       x: 0,
       transition: { 
-        duration: 0.8, 
+        duration: 1, 
         ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
         delay: 0.2,
         staggerChildren: 0.1,
